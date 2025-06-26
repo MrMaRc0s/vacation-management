@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><title>Manager Dashboard</title></head>
+<body>
+  <h2>Manager Dashboard</h2>
+  <div id="users"></div>
+  <div id="requests"></div>
+
+  <script>
+    const user = JSON.parse(sessionStorage.getItem("user"));
+
+    fetch('/users')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('users').innerHTML = `<h3>Users</h3><pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+
+    fetch('/requests/view', {
+      method: 'POST',
+      body: JSON.stringify({ role: "manager" })
+    })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('requests').innerHTML = `<h3>Vacation Requests</h3><pre>${JSON.stringify(data, null, 2)}</pre>`;
+      });
+  </script>
+</body>
+</html>

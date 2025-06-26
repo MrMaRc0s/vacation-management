@@ -19,7 +19,7 @@ const seed = async () => {
     db.run(`
       CREATE TABLE users (
         id TEXT PRIMARY KEY,
-        name TEXT,
+        username TEXT UNIQUE,
         email TEXT UNIQUE,
         password TEXT,
         role TEXT,
@@ -40,15 +40,15 @@ const seed = async () => {
     `);
 
     db.run(
-      `INSERT INTO users (id, name, email, password, role, employee_code)
+      `INSERT INTO users (id, username, email, password, role, employee_code)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [managerId, "Alice Manager", "alice@company.com", managerpass, "manager", "1234567"]
+      [managerId, "AliceManager", "alice@company.com", managerpass, "manager", "1234567"]
     );
 
     db.run(
-      `INSERT INTO users (id, name, email, password, role, employee_code)
+      `INSERT INTO users (id, username, email, password, role, employee_code)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [employeeId, "Bob Employee", "bob@company.com", employeepass, "employee", "2345678"]
+      [employeeId, "BobEmployee", "bob@company.com", employeepass, "employee", "2345678"]
     );
 
     db.run(
