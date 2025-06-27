@@ -33,6 +33,37 @@ module.exports = (req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && req.url.endsWith('.js')) {
+  const filePath = path.join(__dirname, '..', 'public', req.url);
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      res.writeHead(404);
+      return res.end('File Not Found');
+    }
+    res.writeHead(200, { 'Content-Type': 'application/javascript' });
+    res.end(content);
+  });
+  return;
+}
+
+const prettyUrls = {
+  '/manager': 'manager.html',
+  '/employee': 'employee.html'
+};
+
+if (req.method === 'GET' && prettyUrls[req.url]) {
+  const filePath = path.join(__dirname, '..', 'public', prettyUrls[req.url]);
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      res.writeHead(500);
+      return res.end('Error loading file');
+    }
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(content);
+  });
+  return;
+}
+
   // AUTH
   if (req.url === '/login' && req.method === 'POST') return handleLogin(req, res);
 
