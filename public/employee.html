@@ -1,43 +1,134 @@
 <!DOCTYPE html>
 <html>
-<head><title>Employee Dashboard</title></head>
-<body>
-  <h2>Employee Dashboard</h2>
-  <form id="requestForm">
-    <input name="start_date" type="date" required />
-    <input name="end_date" type="date" required />
-    <input name="reason" placeholder="Reason" required />
-    <button type="submit">Submit Vacation</button>
-  </form>
+  <head>
+    <title>Employee Dashboard</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+        padding: 6px;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      input,
+      button,
+      select {
+        margin: 4px 0;
+        padding: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Welcome, Employee</h2>
 
-  <div id="requests"></div>
+    <h3>Submit New Vacation Request</h3>
+    <form id="requestForm">
+      <label>Start Date: <input name="start_date" type="date" required /></label
+      ><br />
+      <label>End Date: <input name="end_date" type="date" required /></label
+      ><br />
+      <label
+        >Reason: <input name="reason" placeholder="Reason" required /></label
+      ><br />
+      <button type="submit">Submit Request</button>
+    </form>
 
-  <script>
-    const user = JSON.parse(sessionStorage.getItem("user"));
+    <h3>Your Vacation Requests</h3>
+    <table id="requestTable">
+      <tr>
+        <th>Start</th>
+        <th>End</th>
+        <th>Reason</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </table>
+    <button onclick="logout()" style="float: right">Sign Out</button>
 
-    document.getElementById('requestForm').onsubmit = async (e) => {
-      e.preventDefault();
-      const res = await fetch('/requests', {
-        method: 'POST',
-        body: JSON.stringify({
+    <script>
+      const user = JSON.parse(sessionStorage.getItem("user"));
+      if (!user || user.role !== "employee") {
+        alert("Access denied.");
+        location.href = "/";
+      }
+
+      // Handle new request submission
+      document.getElementById("requestForm").onsubmit = async (e) => {
+        e.preventDefault();
+        const form = e.target;
+
+        const start = new Date(form.start_date.value);
+        const end = new Date(form.end_date.value);
+        if (end <= start) {
+          alert("End date must be after start date.");
+          return;
+        }
+
+        const data = {
           user_id: user.userId,
-          start_date: e.target.start_date.value,
-          end_date: e.target.end_date.value,
-          reason: e.target.reason.value
-        })
-      });
-      alert(await res.text());
-      location.reload();
-    };
+          start_date: form.start_date.value,
+          end_date: form.end_date.value,
+          reason: form.reason.value,
+        };
 
-    fetch('/requests/view', {
-      method: 'POST',
-      body: JSON.stringify({ user_id: user.userId, role: "employee" })
-    })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('requests').innerHTML = `<h3>Your Requests</h3><pre>${JSON.stringify(data, null, 2)}</pre>`;
-      });
-  </script>
-</body>
+        const res = await fetch("/requests", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+
+        if (res.ok) {
+          alert("Request submitted!");
+          location.reload();
+        } else {
+          alert("Failed to submit request.");
+        }
+      };
+
+      // Fetch and show existing requests
+      fetch("/requests/view", {
+        method: "POST",
+        body: JSON.stringify({ user_id: user.userId, role: "employee" }),
+      })
+        .then((res) => res.json())
+        .then((requests) => {
+          const table = document.getElementById("requestTable");
+          requests.forEach((r) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${r.start_date}</td>
+              <td>${r.end_date}</td>
+              <td>${r.reason}</td>
+              <td>${r.status}</td>
+              <td style="text-align:center;">
+  ${
+    r.status === "pending"
+      ? `<button onclick="deleteRequest('${r.id}')">Delete</button>`
+      : '<span style="color:#aaa;">-</span>'
+  }
+  </td>
+        `;
+            table.appendChild(row);
+          });
+        });
+
+      // Delete request (if pending)
+      function deleteRequest(requestId) {
+        if (!confirm("Are you sure you want to delete this request?")) return;
+        fetch("/requests/delete", {
+          method: "DELETE",
+          body: JSON.stringify({ request_id: requestId }),
+        }).then(() => location.reload());
+      }
+      function logout() {
+        sessionStorage.removeItem("user");
+        location.href = "/";
+      }
+    </script>
+  </body>
 </html>
