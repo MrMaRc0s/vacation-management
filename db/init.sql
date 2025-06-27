@@ -10,6 +10,7 @@ CREATE TABLE users (
 CREATE TABLE vacation_requests (
     id TEXT PRIMARY KEY,
     user_id TEXT,
+    submit_date TEXT,
     start_date TEXT,
     end_date TEXT,
     reason TEXT,

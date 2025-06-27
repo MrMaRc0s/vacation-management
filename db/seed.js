@@ -31,6 +31,7 @@ const seed = async () => {
       CREATE TABLE vacation_requests (
         id TEXT PRIMARY KEY,
         user_id TEXT,
+        submit_date TEXT,
         start_date TEXT,
         end_date TEXT,
         reason TEXT,
@@ -52,9 +53,9 @@ const seed = async () => {
     );
 
     db.run(
-      `INSERT INTO vacation_requests (id, user_id, start_date, end_date, reason, status)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [uuidv4(), employeeId, "2025-07-01", "2025-07-10", "Family trip", "pending"]
+      `INSERT INTO vacation_requests (id, user_id, submit_date, start_date, end_date, reason, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [uuidv4(), employeeId, "2025-06-01", "2025-07-01", "2025-07-10", "Family trip", "pending"]
     );
 
     console.log("Seeded demo data.");

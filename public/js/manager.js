@@ -1,17 +1,23 @@
-const user = JSON.parse(sessionStorage.getItem("user"));
-if (!user || user.role !== 'manager') {
+const token = sessionStorage.getItem("token");
+const role = sessionStorage.getItem("role");
+
+if (!token || role !== 'manager') {
   alert("Access denied");
   location.href = "/";
 }
 
 function logout() {
-  sessionStorage.removeItem("user");
+  sessionStorage.clear();
   location.href = "/";
 }
 
 function changeStatus(requestId, status) {
   fetch('/requests/status', {
     method: 'PUT',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({ request_id: requestId, status })
   }).then(() => location.reload());
 }
@@ -26,6 +32,10 @@ function updateUser(userId) {
 
   fetch('/users/update', {
     method: 'PUT',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify(body)
   }).then(() => alert("User updated"));
 }
@@ -34,6 +44,10 @@ function deleteUser(userId) {
   if (!confirm("Delete user?")) return;
   fetch('/users/delete', {
     method: 'DELETE',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({ id: userId })
   }).then(() => location.reload());
 }
@@ -52,10 +66,16 @@ document.getElementById('createUserForm').onsubmit = async (e) => {
 
   const res = await fetch('/users', {
     method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify(newUser)
   });
 
-  if (res.ok) {
+  if (res.status === 409) {
+    alert("Username or email is already used.");
+  } else if (res.ok) {
     alert("User created!");
     location.reload();
   } else {
@@ -64,7 +84,9 @@ document.getElementById('createUserForm').onsubmit = async (e) => {
 };
 
 // Load users
-fetch('/users')
+fetch('/users', {
+  headers: { 'Authorization': 'Bearer ' + token }
+})
   .then(res => res.json())
   .then(users => {
     const table = document.getElementById("userTable");
@@ -84,10 +106,14 @@ fetch('/users')
     });
   });
 
-// Load requests
+// Load vacation requests
 fetch('/requests/view', {
   method: 'POST',
-  body: JSON.stringify({ role: "manager" })
+  headers: {
+    'Authorization': 'Bearer ' + token,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ role: 'manager' })
 })
   .then(res => res.json())
   .then(requests => {
@@ -105,7 +131,8 @@ fetch('/requests/view', {
       }
 
       row.innerHTML = `
-        <td>${r.user_id}</td>
+        <td>${r.username}</td>
+        <td>${r.submit_date}</td>
         <td>${r.start_date}</td>
         <td>${r.end_date}</td>
         <td>${r.reason}</td>
