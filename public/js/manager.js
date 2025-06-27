@@ -93,13 +93,19 @@ fetch('/users', {
     users.forEach(u => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td><input value="${u.username}" id="username-${u.id}" /></td>
-        <td><input value="${u.email}" id="email-${u.id}" /></td>
+        <td><input value="${u.username}" id="username-${u.id}" class="px-2 py-1 border border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" /></td>
+        <td><input value="${u.email}" id="email-${u.id}" class="px-2 py-1 border border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" /></td>
         <td>${u.employee_code}</td>
-        <td><input placeholder="New password" type="password" id="password-${u.id}" /></td>
-        <td>
-          <button onclick="updateUser('${u.id}')">Update</button>
-          <button onclick="deleteUser('${u.id}')">Delete</button>
+        <td><input placeholder="New password" type="password" id="password-${u.id}" class="px-2 py-1 border border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" /></td>
+        <td class="flex gap-2 justify-center">
+          <button onclick="updateUser('${u.id}')"
+            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded shadow transition">
+            Update
+          </button>
+          <button onclick="deleteUser('${u.id}')"
+            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow transition">
+            Delete
+          </button>
         </td>
       `;
       table.appendChild(row);
@@ -123,11 +129,22 @@ fetch('/requests/view', {
       let actions = '';
       if (r.status === 'pending') {
         actions = `
-          <button onclick="changeStatus('${r.id}', 'approved')">Approve</button>
-          <button onclick="changeStatus('${r.id}', 'rejected')">Reject</button>
+          <button onclick="changeStatus('${r.id}', 'approved')" 
+            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded shadow mr-2 transition">
+            Approve
+          </button>
+          <button onclick="changeStatus('${r.id}', 'rejected')" 
+            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow transition">
+            Reject
+          </button>
         `;
       } else {
-        actions = `<button onclick="changeStatus('${r.id}', 'pending')">Cancel</button>`;
+        actions = `
+          <button onclick="changeStatus('${r.id}', 'pending')" 
+            class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded shadow transition">
+            Cancel
+          </button>
+        `;
       }
 
       const submitDate = r.submit_date ? r.submit_date.slice(0, 10) : '';
@@ -137,8 +154,16 @@ fetch('/requests/view', {
         <td>${r.start_date}</td>
         <td>${r.end_date}</td>
         <td>${r.reason}</td>
-        <td>${r.status}</td>
-        <td>${actions}</td>
+        <td>
+          <span class="${
+            r.status === 'approved' ? 'text-green-600 font-semibold' :
+            r.status === 'rejected' ? 'text-red-600 font-semibold' :
+            'text-yellow-600 font-semibold'
+          }">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span>
+        </td>
+        <td class="flex gap-2 justify-center items-center">
+          ${actions}
+        </td>
       `;
       table.appendChild(row);
     });

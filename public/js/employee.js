@@ -96,8 +96,8 @@ fetch('/requests/view', {
         <td>${r.status}</td>
         <td>
           ${r.status === 'pending'
-            ? `<button onclick="deleteRequest('${r.id}')">Delete</button>`
-            : '<span style="color:#aaa;">-</span>'}
+            ? `<button onclick="deleteRequest('${r.id}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow transition">Delete</button>`
+            : `<button disabled class="bg-gray-300 text-gray-500 px-3 py-1 rounded cursor-not-allowed">No Action</button>`}
         </td>
       `;
       table.appendChild(row);
