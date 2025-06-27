@@ -130,9 +130,10 @@ fetch('/requests/view', {
         actions = `<button onclick="changeStatus('${r.id}', 'pending')">Cancel</button>`;
       }
 
+      const submitDate = r.submit_date ? r.submit_date.slice(0, 10) : '';
       row.innerHTML = `
         <td>${r.username}</td>
-        <td>${r.submit_date}</td>
+        <td>${submitDate}</td>
         <td>${r.start_date}</td>
         <td>${r.end_date}</td>
         <td>${r.reason}</td>

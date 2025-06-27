@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { handleLogin } = require('./handlers/auth');
 const { verifyToken } = require('./middleware/auth');
+const safeHandler = require('./middleware/recover');
 const {
   getUsers,
   createUser,
@@ -68,25 +69,25 @@ module.exports = (req, res) => {
   // AUTH
   if (req.url === '/login' && req.method === 'POST') return handleLogin(req, res);
 
-  // USER MANAGEMENT (protected by verifyToken)
+  // USER MANAGEMENT
   if (req.url.startsWith('/users')) {
     return verifyToken(req, res, () => {
-      if (req.url === '/users' && req.method === 'GET') return getUsers(req, res);
-      if (req.url === '/users' && req.method === 'POST') return createUser(req, res);
-      if (req.url === '/users/update' && req.method === 'PUT') return updateUser(req, res);
-      if (req.url === '/users/delete' && req.method === 'DELETE') return deleteUser(req, res);
+      if (req.url === '/users' && req.method === 'GET') return safeHandler(getUsers)(req, res);
+      if (req.url === '/users' && req.method === 'POST') return safeHandler(createUser)(req, res);
+      if (req.url === '/users/update' && req.method === 'PUT') return safeHandler(updateUser)(req, res);
+      if (req.url === '/users/delete' && req.method === 'DELETE') return safeHandler(deleteUser)(req, res);
       res.writeHead(404);
       res.end('Not Found');
     });
   }
 
-  // VACATION REQUESTS (protected by verifyToken)
+  // VACATION REQUESTS
   if (req.url.startsWith('/requests')) {
     return verifyToken(req, res, () => {
-      if (req.url === '/requests' && req.method === 'POST') return createRequest(req, res);
-      if (req.url === '/requests/view' && req.method === 'POST') return getRequests(req, res);
-      if (req.url === '/requests/status' && req.method === 'PUT') return updateRequestStatus(req, res);
-      if (req.url === '/requests/delete' && req.method === 'DELETE') return deleteRequest(req, res);
+      if (req.url === '/requests' && req.method === 'POST') return safeHandler(createRequest)(req, res);
+      if (req.url === '/requests/view' && req.method === 'POST') return safeHandler(getRequests)(req, res);
+      if (req.url === '/requests/status' && req.method === 'PUT') return safeHandler(updateRequestStatus)(req, res);
+      if (req.url === '/requests/delete' && req.method === 'DELETE') return safeHandler(deleteRequest)(req, res);
       res.writeHead(404);
       res.end('Not Found');
     });
