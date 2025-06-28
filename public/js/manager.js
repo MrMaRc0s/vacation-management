@@ -92,6 +92,7 @@ fetch('/users', {
     const table = document.getElementById("userTable");
     users.forEach(u => {
       const row = document.createElement("tr");
+      const isManager = u.role === "manager";
       row.innerHTML = `
         <td><input value="${u.username}" id="username-${u.id}" class="px-2 py-1 border border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" /></td>
         <td><input value="${u.email}" id="email-${u.id}" class="px-2 py-1 border border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-400" /></td>
@@ -103,7 +104,11 @@ fetch('/users', {
             Update
           </button>
           <button onclick="deleteUser('${u.id}')"
-            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded shadow transition">
+            class="px-3 py-1 rounded shadow transition text-white
+              ${isManager 
+                ? 'bg-gray-400 cursor-not-allowed opacity-60' 
+                : 'bg-red-500 hover:bg-red-600'}"
+            ${isManager ? 'disabled title="You cannot delete a manager."' : ''}>
             Delete
           </button>
         </td>
