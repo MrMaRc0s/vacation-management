@@ -103,3 +103,12 @@ fetch('/requests/view', {
       table.appendChild(row);
     });
   });
+
+// Set min date for start_date and end_date inputs to today
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  const startInput = document.querySelector('input[name="start_date"]');
+  const endInput = document.querySelector('input[name="end_date"]');
+  if (startInput) startInput.setAttribute('min', today);
+  if (endInput) endInput.setAttribute('min', today);
+});
